@@ -106,8 +106,8 @@ options:
         version_added: "1.1.0"
     public_network_access:
         description:
-            - Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be 'Enabled' or 'Disabled'. Possible values include: "Enabled", "Disabled".
-            - If set to false, no containers in this account will be able to allow anonymous public access.
+            - Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be 'Enabled' or 'Disabled'.
+            - If set to Disabled, no public access in this account will be allowed.
             - If omitted, new account creation will default to null which is currently interpreted to True. Existing accounts will not be modified.
         type: bool
         version_added: "X.X.X"
