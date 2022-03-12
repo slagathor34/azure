@@ -104,6 +104,13 @@ options:
             - If omitted, new account creation will default to null which is currently interpreted to True. Existing accounts will not be modified.
         type: bool
         version_added: "1.1.0"
+    public_network_access:
+        description:
+            - Allow or disallow public network access to Storage Account. Value is optional but if passed in, must be 'Enabled' or 'Disabled'. Possible values include: "Enabled", "Disabled".
+            - If set to false, no containers in this account will be able to allow anonymous public access.
+            - If omitted, new account creation will default to null which is currently interpreted to True. Existing accounts will not be modified.
+        type: bool
+        version_added: "X.X.X"
     network_acls:
         description:
             - Manages the Firewall and virtual networks settings of the storage account.
@@ -575,6 +582,7 @@ class AzureRMStorageAccount(AzureRMModuleBase):
             primary_location=account_obj.primary_location,
             https_only=account_obj.enable_https_traffic_only,
             minimum_tls_version=account_obj.minimum_tls_version,
+            public_network_access=account_obj.public_network_access,
             allow_blob_public_access=account_obj.allow_blob_public_access,
             network_acls=account_obj.network_rule_set
         )
@@ -700,6 +708,18 @@ class AzureRMStorageAccount(AzureRMModuleBase):
                 except Exception as exc:
                     self.fail("Failed to update account type: {0}".format(str(exc)))
 
+        if self.public_network_access is not None and self.public_network_access != self.account_dict.get('public_network_access'):
+            self.results['changed'] = True
+            self.account_dict['public_network_access'] = self.public_network_access
+            if not self.check_mode:
+                try:
+                    parameters = self.storage_models.StorageAccountUpdateParameters(public_network_access=self.public_network_access)
+                    self.storage_client.storage_accounts.update(self.resource_group,
+                                                                self.name,
+                                                                parameters)
+                except Exception as exc:
+                    self.fail("Failed to update account type: {0}".format(str(exc)))
+        
         if self.allow_blob_public_access is not None and self.allow_blob_public_access != self.account_dict.get('allow_blob_public_access'):
             self.results['changed'] = True
             self.account_dict['allow_blob_public_access'] = self.allow_blob_public_access
